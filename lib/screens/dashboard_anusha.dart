@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -6,10 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 /// Bar chart example
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:flutter/material.dart';
-import 'package:gcc_parking/enforcement.dart';
-import 'package:gcc_parking/utils/visualUtils.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:gcc_parking/utils/actionUtils.dart';
 
 import 'user.dart';
 import 'registration.dart';
@@ -18,178 +16,190 @@ import 'alerts.dart';
 import 'package:gcc_parking/utils/networkUtils.dart';
 import 'package:gcc_parking/utils/appConstants.dart';
 
-void logout(BuildContext context) async {
-  showloader(context);
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.remove(LOGGED_IN);
-  prefs.remove(CURRENT_USER);
-
-  print(prefs.getBool(LOGGED_IN) ?? false);
-  print(prefs.getString(CURRENT_USER));
-
-  removeloader();
-  Navigator.push(
-      context, new MaterialPageRoute(builder: (context) => new Enforcement()));
-}
-
+BuildContext mContxt;
 class Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'ADMIN LOGIN',
-      home: new Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.blueGrey,
-          actions: <Widget>[
-            Icon(FontAwesomeIcons.search),
-            Padding(
-              padding: EdgeInsets.only(right: 24.0),
-            ),
-            Icon(FontAwesomeIcons.envelope),
-            Padding(
-              padding: EdgeInsets.only(right: 24.0),
-            ),
-            Icon(FontAwesomeIcons.bell),
-            Padding(
-              padding: EdgeInsets.only(right: 24.0),
-            ),
-          ],
-        ),
+    FocusScope.of(context).requestFocus(new FocusNode());
 
-        drawer: Drawer(
-          child: Container(
-            color: Colors.blueGrey,
-            child: ListView(children: <Widget>[
-              DrawerHeader(
-                  child: Icon(
-                    FontAwesomeIcons.bars,
-                    size: 30.0,
-                    color: Colors.white,
-                  ),
-                  decoration: BoxDecoration(color: Colors.blueGrey)),
-              //Icon(FontAwesomeIcons.search,size: 20.0,),
-
-              new ListTile(
-                title: Text(
-                  'User Management',
-                  style: TextStyle(color: Colors.white),
-                ),
-                leading: new Icon(
-                  FontAwesomeIcons.users,
-                  color: Colors.white,
-                  size: 30.0,
-                ),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  Navigator.push(context,
-                      new MaterialPageRoute(builder: (context) => new User()));
-                },
+    mContxt = context;
+    return WillPopScope(
+      onWillPop: _willPop,
+      child: new MaterialApp(
+        title: 'AGENT LOGIN',
+        home: new Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.blueGrey,
+            actions: <Widget>[
+              Icon(FontAwesomeIcons.envelope),
+              Padding(
+                padding: EdgeInsets.only(right: 24.0),
               ),
-              new ListTile(
-                title: Text(
-                  'Parking lot Management',
-                  style: TextStyle(color: Colors.white),
-                ),
-                leading: new Icon(
-                  FontAwesomeIcons.productHunt,
-                  color: Colors.white,
-                  size: 30.0,
-                ),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-/*
-                  Navigator.push(
-                      context,
-                      new MaterialPageRoute(
-                          builder: (context) => new Parking1()));
-*/
-                },
+              Icon(FontAwesomeIcons.bell),
+              Padding(
+                padding: EdgeInsets.only(right: 24.0),
               ),
-              new ListTile(
-                title: Text(
-                  'Task and Activity',
-                  style: TextStyle(color: Colors.white),
-                ),
-                leading: new Icon(
-                  FontAwesomeIcons.listUl,
-                  color: Colors.white,
-                  size: 30.0,
-                ),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  Navigator.push(context,
-                      new MaterialPageRoute(builder: (context) => new Task()));
-                },
-              ),
-              new ListTile(
-                title: Text(
-                  'Quick Registration',
-                  style: TextStyle(color: Colors.white),
-                ),
-                leading: new Icon(
-                  FontAwesomeIcons.registered,
-                  color: Colors.white,
-                  size: 30.0,
-                ),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  Navigator.push(
-                      context,
-                      new MaterialPageRoute(
-                          builder: (context) => new Registration()));
-                },
-              ),
-              new ListTile(
-                title: Text(
-                  'Alerts',
-                  style: TextStyle(color: Colors.white),
-                ),
-                leading: new Icon(
-                  FontAwesomeIcons.exclamationTriangle,
-                  color: Colors.white,
-                  size: 30.0,
-                ),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  Navigator.push(context,
-                      new MaterialPageRoute(builder: (context) => new Alert()));
-                },
-              ),
-              new ListTile(
-                title: Text(
-                  'Log out',
-                  style: TextStyle(color: Colors.white),
-                ),
-                leading: new Icon(
-                  FontAwesomeIcons.signOutAlt,
-                  color: Colors.white,
-                  size: 30.0,
-                ),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  logout(context);
-                },
-              ),
-            ]),
+            ],
           ),
-        ),
-        //Icon(FontAwesomeIcons.search,size: 20.0,),
 
-        body: Dashboards(),
+          drawer: Drawer(
+            child: Container(
+              color: Colors.blueGrey,
+              child: ListView(children: <Widget>[
+                DrawerHeader(
+                    child: Icon(
+                      FontAwesomeIcons.bars,
+                      size: 30.0,
+                      color: Colors.white,
+                    ),
+                    decoration: BoxDecoration(color: Colors.blueGrey)),
+                //Icon(FontAwesomeIcons.search,size: 20.0,),
+
+                new ListTile(
+                  title: Text(
+                    'User Management',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  leading: new Icon(
+                    FontAwesomeIcons.users,
+                    color: Colors.white,
+                    size: 30.0,
+                  ),
+                  onTap: () {
+                    // Update the state of the app
+                    // ...
+                    // Then close the drawer
+                    Navigator.push(context,
+                        new MaterialPageRoute(builder: (context) => new User()));
+                  },
+                ),
+                new ListTile(
+                  title: Text(
+                    'Parking lot Management',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  leading: new Icon(
+                    FontAwesomeIcons.productHunt,
+                    color: Colors.white,
+                    size: 30.0,
+                  ),
+                  onTap: () {
+                    // Update the state of the app
+                    // ...
+                    // Then close the drawer
+/*
+                    Navigator.push(
+                        context,
+                        new MaterialPageRoute(
+                            builder: (context) => new Parking1()));
+*/
+                  },
+                ),
+                new ListTile(
+                  title: Text(
+                    'Task and Activity',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  leading: new Icon(
+                    FontAwesomeIcons.listUl,
+                    color: Colors.white,
+                    size: 30.0,
+                  ),
+                  onTap: () {
+                    // Update the state of the app
+                    // ...
+                    // Then close the drawer
+                    Navigator.push(context,
+                        new MaterialPageRoute(builder: (context) => new Task()));
+                  },
+                ),
+                new ListTile(
+                  title: Text(
+                    'Quick Registration',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  leading: new Icon(
+                    FontAwesomeIcons.registered,
+                    color: Colors.white,
+                    size: 30.0,
+                  ),
+                  onTap: () {
+                    // Update the state of the app
+                    // ...
+                    // Then close the drawer
+                    Navigator.push(
+                        context,
+                        new MaterialPageRoute(
+                            builder: (context) => new Registration()));
+                  },
+                ),
+                new ListTile(
+                  title: Text(
+                    'Alerts',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  leading: new Icon(
+                    FontAwesomeIcons.exclamationTriangle,
+                    color: Colors.white,
+                    size: 30.0,
+                  ),
+                  onTap: () {
+                    // Update the state of the app
+                    // ...
+                    // Then close the drawer
+                    Navigator.push(context,
+                        new MaterialPageRoute(builder: (context) => new Alert()));
+                  },
+                ),
+                new ListTile(
+                  title: Text(
+                    'Log out',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  leading: new Icon(
+                    FontAwesomeIcons.signOutAlt,
+                    color: Colors.white,
+                    size: 30.0,
+                  ),
+                  onTap: () {
+                    // Update the state of the app
+                    // ...
+                    // Then close the drawer
+                    logout(context);
+                  },
+                ),
+              ]),
+            ),
+          ),
+          //Icon(FontAwesomeIcons.search,size: 20.0,),
+
+          body: Dashboards(),
+        ),
       ),
     );
+  }
+
+  Future<bool> _willPop() async{
+    print("EXITING");
+    return await showDialog(
+      context: mContxt,
+      builder: (context) => new AlertDialog(
+        title: new Text('Are you sure?'),
+        content: new Text('Do you want to exit'),
+        actions: <Widget>[
+          new FlatButton(
+            onPressed: () => Navigator.pop(context),
+            child: new Text('No'),
+          ),
+          new FlatButton(
+            onPressed: () => exit(0),
+            child: new Text('Yes'),
+          ),
+        ],
+      ),
+    ) ??
+        false;
+
   }
 }
 
@@ -200,28 +210,62 @@ class Dashboards extends StatefulWidget {
   }
 }
 
-class DashboardState extends State<Dashboards> {
+class DashboardState extends State<Dashboards> with WidgetsBindingObserver {
   int countVehicles = 0;
   double totalPayments = 0.0;
   Timer timer;
   List<charts.Series> seriesList;
   bool animate = false;
+  AppLifecycleState _notification;
 
   int i = 0;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     initEverything();
     super.initState();
   }
 
-  void initEverything() async {
-    const fourteenHunredMs = const Duration(milliseconds: 4200);
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    setState(() {
+      _notification = state;
+    });
+    print("DID CHANGE $_notification");
 
+    switch (state) {
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.suspending:
+        {
+          stopTimer();
+          break;
+        }
+
+      case AppLifecycleState.resumed:
+        {
+          startTimer();
+          break;
+        }
+    }
+  }
+
+  void stopTimer() {
+    print("Stopped Timer");
+    timer.cancel();
+  }
+
+  void initEverything() async {
     fetchDashUpdates();
-    timer = new Timer.periodic(fourteenHunredMs, realTimeUpdate);
+    startTimer();
 
     seriesList = _createSampleData();
+  }
+
+  void startTimer() {
+    print("Strart Timer");
+    timer = new Timer.periodic(fourteenHunredMs, realTimeUpdate);
   }
 
   void realTimeUpdate(Timer t) async {
@@ -229,7 +273,7 @@ class DashboardState extends State<Dashboards> {
   }
 
   Future fetchDashUpdates() async {
-     await getTotalVehicles(context).then((count) {
+    await getTotalVehicles(context).then((count) {
       print("Count $count");
       setState(() {
         ++i;
@@ -249,8 +293,9 @@ class DashboardState extends State<Dashboards> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     print("DispOSE CALED");
-    timer.cancel();
+    stopTimer();
     super.dispose();
   }
 
@@ -284,19 +329,15 @@ class DashboardState extends State<Dashboards> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
-
           children: <Widget>[
             IconButton(
-
               icon: Icon(
                 FontAwesomeIcons.users,
                 color: Colors.white,
                 size: DRAWER_ICON_SIZE,
-
               ),
               onPressed: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => User()));
+                gotoUser(context);
               },
             ),
             IconButton(
@@ -344,9 +385,7 @@ class DashboardState extends State<Dashboards> {
         ),
       ),
       Expanded(
-        child: Column(
-
-            children: <Widget>[
+        child: Column(children: <Widget>[
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Row(
@@ -414,21 +453,23 @@ class DashboardState extends State<Dashboards> {
               ],
             ),
           ),
-
           Container(
             padding: EdgeInsets.only(top: 24.0),
             height: 250.0,
             width: 250.0,
-            child: /*charts.BarChart(
-              seriesList,
-              animate: animate,
-            ),*/
-
-            SimpleBarChart(seriesList, animate: animate),
+            child: SimpleBarChart(seriesList, animate: animate),
           ),
         ]),
       ),
     ]);
+  }
+
+  void gotoUser(BuildContext context) {
+    stopTimer();
+     Navigator.push(
+        context, MaterialPageRoute(builder: (context) => User()));
+
+ //   startTimer();
   }
 }
 

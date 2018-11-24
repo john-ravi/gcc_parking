@@ -192,6 +192,7 @@ class MyCustomFormState extends State<MyCustomForm> {
 
     prefs.setString(CURRENT_USER, control_loginId.text);
     print(prefs.getString(CURRENT_USER));
+    FocusScope.of(context).requestFocus(new FocusNode());
     Navigator.push(
         context, new MaterialPageRoute(builder: (context) => Dashboard()));
   }

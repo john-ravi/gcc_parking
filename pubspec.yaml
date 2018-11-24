@@ -24,6 +24,8 @@ dependencies:
   shared_preferences: ^0.4.2
   fluttertoast: ^2.1.0
   charts_flutter: ^0.5.0
+  autocomplete_textfield: ^1.5.1
+
   flutter_calendar:
      git:
        url: git://github.com/apptreesoftware/flutter_calendar.git

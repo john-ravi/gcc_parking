@@ -46,14 +46,14 @@ Future<bool> dummy (
     "action": "",
   });
 
-  d(uri);
+//  d(uri);
   http.Response httpResponse = await http.post(uri);
 
   bool valid = false;
   if (httpResponse.statusCode == 200) {
     // If the call to the server was successful, parse the JSON
     var decodedBody = json.decode(httpResponse.body);
-    print("decoded body \t" + decodedBody.toString());
+ //   print("decoded body \t" + decodedBody.toString());
 
     valid = decodedBody["status"] == "success";
     if (valid) {
@@ -78,18 +78,18 @@ Future<int> getTotalVehicles (BuildContext context) async {
     "action": "occupied_slots",
   });
 
-  d(uri);
+//  d(uri);
   http.Response httpResponse = await http.post(uri);
 
   bool valid = false;
   if (httpResponse.statusCode == 200) {
     // If the call to the server was successful, parse the JSON
     var decodedBody = json.decode(httpResponse.body);
-   print("decoded body \t" + decodedBody.toString());
+//   print("decoded body \t" + decodedBody.toString());
 
     List listRaw = decodedBody["all_slots"];
     listRaw.forEach((slot) {
-      print("Row \t $slot and oo ${slot["Occupied slots"]}");
+   //   print("Row \t $slot and oo ${slot["Occupied slots"]}");
       if(slot["occupied_slots"] == "1"){
 
         countVehicles++;
@@ -100,7 +100,7 @@ Future<int> getTotalVehicles (BuildContext context) async {
     s(context, "Network Error - ${httpResponse.reasonPhrase}");
   }
 
-  print("Count $countVehicles");
+//  print("Count $countVehicles");
   return countVehicles;
 
 }
@@ -112,19 +112,19 @@ Future<double> getTotalPayments (BuildContext context) async {
     "action": "payments",
   });
 
-  d(uri);
+ // d(uri);
   http.Response httpResponse = await http.post(uri);
 
   String valid = "df";
   if (httpResponse.statusCode == 200) {
     // If the call to the server was successful, parse the JSON
     var decodedBody = json.decode(httpResponse.body);
-   print("decoded body \t" + decodedBody.toString());
+ //  print("decoded body \t" + decodedBody.toString());
 
     List listRaw = decodedBody["all_paymets"];
     listRaw.forEach((row) {
       String amountInString = row["total_amount"];
-      print("Row \t $row and oo $amountInString");
+  //    print("Row \t $row and oo $amountInString");
       totalPayments += double.tryParse(amountInString);
     });
 
