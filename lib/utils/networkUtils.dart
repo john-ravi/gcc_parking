@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:gcc_parking/models/model_vehicle.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:gcc_parking/utils/visualUtils.dart';
@@ -28,12 +29,12 @@ Future<bool> validateAndLogin(
 
     valid = decodedBody["status"] == "success";
     if (valid) {
-      s(context, "Logging In - Welcome");
+      showToast("Logging In - Welcome");
     } else {
-      s(context, "Please Check Login Details");
+      showToast("Please Check Login Details");
     }
   } else {
-    s(context, "Network Error - ${httpResponse.reasonPhrase}");
+    showToast("Network Error - ${httpResponse.reasonPhrase}");
   }
 
   return valid;
@@ -97,13 +98,60 @@ Future<int> getTotalVehicles (BuildContext context) async {
     });
 
   } else {
-    s(context, "Network Error - ${httpResponse.reasonPhrase}");
+    showToast("Network Error - ${httpResponse.reasonPhrase}");
   }
 
 //  print("Count $countVehicles");
   return countVehicles;
 
 }
+Future<List<Vehicle>> getVehicles (BuildContext context) async {
+
+List<Vehicle> listVehicles = new List();
+  var uri = Uri.http(authority, unencodedPath, {
+    "action": "user_details",
+  });
+
+//  d(uri);
+  http.Response httpResponse = await http.post(uri);
+
+  if (httpResponse.statusCode == 200) {
+    // If the call to the server was successful, parse the JSON
+    var decodedBody = json.decode(httpResponse.body);
+   print("decoded body \t" + decodedBody.toString());
+
+    List listRaw = decodedBody["all_users"];
+
+    /*
+    * "Vehicle Plate Number": "TN-09-PN-0000",
+            "Vehicle Type": "bus",
+            "User Id": "1",
+            "Start Time": "02:00:00",
+            "End Time": "00:30:00",
+            "Parking Slot": "slot2",
+            "Applicable Fee": "20",
+            "Payement Status": "1",
+            "Applicable Fine": "20",
+            "Penalty": "10",
+            "Due": "30",
+            "Profile": "http://18.191.190.195/gccparking/admin/"
+    * */
+    listRaw.forEach((vehicle) {
+   //   print("Row \t $slot and oo ${slot["Occupied slots"]}");
+
+     listVehicles.add(Vehicle.fromMap(vehicle));
+    });
+
+  } else {
+    showToast("Network Error - ${httpResponse.reasonPhrase}");
+  }
+
+//  print("Count $countVehicles");
+  return listVehicles;
+
+}
+
+
 Future<double> getTotalPayments (BuildContext context) async {
 
 
@@ -129,7 +177,7 @@ Future<double> getTotalPayments (BuildContext context) async {
     });
 
   } else {
-    s(context, "Network Error - ${httpResponse.reasonPhrase}");
+    showToast("Network Error - ${httpResponse.reasonPhrase}");
   }
 
   print("Count $totalPayments");

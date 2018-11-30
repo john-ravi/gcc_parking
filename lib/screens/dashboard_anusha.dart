@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 /// Bar chart example
@@ -21,6 +22,7 @@ class Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     FocusScope.of(context).requestFocus(new FocusNode());
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
 
     mContxt = context;
     return WillPopScope(

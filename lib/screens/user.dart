@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gcc_parking/models/model_vehicle.dart';
 import 'package:gcc_parking/utils/actionUtils.dart';
 import 'package:gcc_parking/utils/appConstants.dart';
+import 'package:gcc_parking/utils/networkUtils.dart';
 import 'registration.dart';
 import 'task.dart';
 import 'alerts.dart';
@@ -18,106 +20,45 @@ class User extends StatefulWidget {
 
 class UserState extends State<User> {
   bool serachActive = true;
-  String currentText = "";
-  GlobalKey<AutoCompleteTextFieldState<String>> keySearchVehicle =
+  GlobalKey<AutoCompleteTextFieldState<Vehicle>> keySearchVehicle =
       new GlobalKey();
-  List<String> suggestions = new List();
+  List<Vehicle> suggestions = new List();
 
   AutoCompleteTextField textField;
+  Vehicle currentVehicle = new Vehicle();
+  bool isBlacklisted = false;
 
-  void populateList() async {
-    await Future.delayed(Duration(seconds: 7));
+  String vehicleNumber = "XX XX XX XXXX";
 
-    setState(() {
-      suggestions = [
-        "Apple",
-        "Armidillo",
-        "Actual",
-        "Actuary",
-        "America",
-        "Argentina",
-        "Australia",
-        "Antarctica",
-        "Blueberry",
-        "Cheese",
-        "Danish",
-        "Eclair",
-        "Fudge",
-        "Granola",
-        "Hazelnut",
-        "Ice Cream",
-        "Jely",
-        "Kiwi Fruit",
-        "Lamb",
-        "Macadamia",
-        "Nachos",
-        "Oatmeal",
-        "Palm Oil",
-        "Quail",
-        "Rabbit",
-        "Salad",
-        "T-Bone Steak",
-        "Urid Dal",
-        "Vanilla",
-        "Waffles",
-        "Yam",
-        "Zest"
-      ];
-    });
-
-    textField.updateSuggestions(suggestions);
-  }
+  String vehicleType, userId, startTime, endTime, parkingSlot, appFee, payStatus, appFine, dues, penalty;
 
   @override
   void initState() {
-    populateList();
+    initEverything();
     super.initState();
+  }
+
+  void initEverything() async {
+    //populateList();
+
+    suggestions = await getVehicles(context);
+    textField.updateSuggestions(suggestions);
+    print("updated suggestions");
+/*
+    Future.delayed(
+        Duration(
+          milliseconds: 4200,
+        ), () {
+      textField.key.currentState.textField.inputFormatters.add(
+        WhitelistingTextInputFormatter(RegExp("^[A-Za-z0-9]+")),
+      );
+    });
+*/
   }
 
   @override
   Widget build(BuildContext context) {
-    textField = new AutoCompleteTextField<String>(
-        decoration: new InputDecoration(
-          fillColor: Colors.white,
-          filled: true,
-          hintText: "Ex:TN01eh1234",
-        ),
-        style: TextStyle(color: Colors.black, fontSize: 18.0),
-        key: keySearchVehicle,
-        //    suggestionsAmount: 7,
-        submitOnSuggestionTap: true,
-        clearOnSubmit: false,
-        suggestions: suggestions,
-        textInputAction: TextInputAction.go,
-        textChanged: (item) {
-          currentText = item;
-
-          if(item.length < 2) {
-    //        keySearchVehicle.currentState.textField;
-          } else if(item.length == 2) {
-           /* item += item + " ";*/
-
-
-          }
-          print("currwent $currentText");
-          print("list ${suggestions.toString()}");
-        },
-        textSubmitted: (item) {
-          print("Submitteed");
-          setState(() {
-            currentText = item;
-          });
-        },
-        itemBuilder: (context, item) {
-          return new Padding(
-              padding: EdgeInsets.all(8.0), child: new Text(item));
-        },
-        itemSorter: (a, b) {
-          return a.compareTo(b);
-        },
-        itemFilter: (item, query) {
-          return item.toLowerCase().startsWith(query.toLowerCase());
-        });
+    buildSearchText();
 
     return new MaterialApp(
       title: 'AGENT LOGIN',
@@ -132,183 +73,219 @@ class UserState extends State<User> {
           ],
         ),
 
-        drawer: Drawer(
-          child: Container(
-            color: Colors.blueGrey,
-            child: ListView(children: <Widget>[
-              DrawerHeader(
-                  child: Icon(
-                    FontAwesomeIcons.bars,
-                    size: 30.0,
-                    color: Colors.white,
-                  ),
-                  decoration: BoxDecoration(color: Colors.blueGrey)),
-              //Icon(FontAwesomeIcons.search,size: 20.0,),
-
-              new ListTile(
-                title: Text(
-                  'User Management',
-                  style: TextStyle(color: Colors.white),
-                ),
-                leading: new Icon(
-                  FontAwesomeIcons.users,
-                  color: Colors.white,
-                  size: 30.0,
-                ),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  Navigator.push(context,
-                      new MaterialPageRoute(builder: (context) => new User()));
-                },
-              ),
-              new ListTile(
-                title: Text(
-                  'Parking lot Management',
-                  style: TextStyle(color: Colors.white),
-                ),
-                leading: new Icon(
-                  FontAwesomeIcons.productHunt,
-                  color: Colors.white,
-                  size: 30.0,
-                ),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-/*
-                  Navigator.push(
-                      context,
-                      new MaterialPageRoute(
-                          builder: (context) => new Parking1()));
-*/
-                },
-              ),
-              new ListTile(
-                title: Text(
-                  'Task and Activity',
-                  style: TextStyle(color: Colors.white),
-                ),
-                leading: new Icon(
-                  FontAwesomeIcons.listUl,
-                  color: Colors.white,
-                  size: 30.0,
-                ),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  Navigator.push(context,
-                      new MaterialPageRoute(builder: (context) => new Task()));
-                },
-              ),
-              new ListTile(
-                title: Text(
-                  'Quick Registration',
-                  style: TextStyle(color: Colors.white),
-                ),
-                leading: new Icon(
-                  FontAwesomeIcons.registered,
-                  color: Colors.white,
-                  size: 30.0,
-                ),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  Navigator.push(
-                      context,
-                      new MaterialPageRoute(
-                          builder: (context) => new Registration()));
-                },
-              ),
-              new ListTile(
-                title: Text(
-                  'Alerts',
-                  style: TextStyle(color: Colors.white),
-                ),
-                leading: new Icon(
-                  FontAwesomeIcons.exclamationTriangle,
-                  color: Colors.white,
-                  size: 30.0,
-                ),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  Navigator.push(context,
-                      new MaterialPageRoute(builder: (context) => new Alert()));
-                },
-              ),
-              new ListTile(
-                title: Text(
-                  'Log out',
-                  style: TextStyle(color: Colors.white),
-                ),
-                leading: new Icon(
-                  FontAwesomeIcons.signOutAlt,
-                  color: Colors.white,
-                  size: 30.0,
-                ),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  logout(context);
-                },
-              ),
-            ]),
-          ),
-        ),
+        drawer: buildDrawer(context),
         //Icon(FontAwesomeIcons.search,size: 20.0,),
 
-        body: UserManagemementBody(),
+        body: buildDescriptionRow(context),
       ),
     );
   }
 
-  Widget buildAutoSearch() {
-    return Container(
-      width: 250.0,
-      child: ListTile(
-          title: textField,
-          trailing: new IconButton(
-              icon: new Icon(Icons.clear),
-              onPressed: () {
-                print("pressed reset");
-                setState(() {
-                  if (currentText != "") {
-                    textField.clear();
-                    currentText = "";
-                  }
-                });
-              })),
+  void buildSearchText() {
+    textField = new AutoCompleteTextField<Vehicle>(
+        decoration: new InputDecoration(
+          fillColor: Colors.white,
+          filled: true,
+          hintText: "Ex:TN01eh1234",
+        ),
+        style: TextStyle(color: Colors.black, fontSize: 18.0),
+        key: keySearchVehicle,
+        //    suggestionsAmount: 7,
+        submitOnSuggestionTap: true,
+        clearOnSubmit: true,
+        suggestions: suggestions,
+        textCapitalization: TextCapitalization.characters,
+        textInputAction: TextInputAction.go,
+        textChanged: (item) {
+          /*keySearchVehicle.currentState.textField.inputFormatters.addAll([
+            WhitelistingTextInputFormatter(RegExp("^[A-Za-z0-9]+")),
+          ]);*/
+
+          print("currwent $item");
+          print("list ${suggestions.toString()}");
+        },
+        textSubmitted: (item) {
+          print("Submitteed $item");
+
+          // textField.key.currentState.textField.controller = ;
+          currentVehicle = suggestions.firstWhere((vehicle) {
+            print("see ${vehicle.vehiclePlateNumber} and $item");
+            if (vehicle.vehiclePlateNumber == item) {
+              return true;
+            } else {
+              return false;
+            }
+          });
+
+          vehicleNumber = currentVehicle.vehiclePlateNumber;
+          vehicleType = currentVehicle.vehicleType;
+          userId = currentVehicle.userId;
+          startTime = currentVehicle.startTime;
+          endTime = currentVehicle.endTime;
+          parkingSlot = currentVehicle.parkingSlot;
+          appFee = currentVehicle.applicableFee;
+          payStatus = currentVehicle.payementStatus;
+          appFine = currentVehicle.applicableFine;
+          dues = currentVehicle.due;
+          penalty = currentVehicle.penalty;
+
+          setState(() {
+
+          });
+
+
+          vehicleNumber = 'Plate # ${vehicleNumber.substring(0, 2)} ${vehicleNumber.substring(2, 4)} ${vehicleNumber.substring(4, 6)} ${vehicleNumber.substring(6)}';
+
+          setState(() {});
+        },
+        itemBuilder: (context, item) {
+          return new Padding(
+              padding: EdgeInsets.all(8.0),
+              child: new Text(item.vehiclePlateNumber));
+        },
+        itemSorter: (a, b) {
+          return a.vehiclePlateNumber.compareTo(b.vehiclePlateNumber);
+        },
+        itemFilter: (item, query) {
+          return item.vehiclePlateNumber
+              .toLowerCase()
+              .startsWith(query.toLowerCase());
+        });
+  }
+
+  Drawer buildDrawer(BuildContext context) {
+    return Drawer(
+      child: Container(
+        color: Colors.blueGrey,
+        child: ListView(children: <Widget>[
+          DrawerHeader(
+              child: Icon(
+                FontAwesomeIcons.bars,
+                size: 30.0,
+                color: Colors.white,
+              ),
+              decoration: BoxDecoration(color: Colors.blueGrey)),
+          //Icon(FontAwesomeIcons.search,size: 20.0,),
+
+          new ListTile(
+            title: Text(
+              'User Management',
+              style: TextStyle(color: Colors.white),
+            ),
+            leading: new Icon(
+              FontAwesomeIcons.users,
+              color: Colors.white,
+              size: 30.0,
+            ),
+            onTap: () {
+              // Update the state of the app
+              // ...
+              // Then close the drawer
+              Navigator.push(context,
+                  new MaterialPageRoute(builder: (context) => new User()));
+            },
+          ),
+          new ListTile(
+            title: Text(
+              'Parking lot Management',
+              style: TextStyle(color: Colors.white),
+            ),
+            leading: new Icon(
+              FontAwesomeIcons.productHunt,
+              color: Colors.white,
+              size: 30.0,
+            ),
+            onTap: () {
+              // Update the state of the app
+              // ...
+              // Then close the drawer
+/*
+                Navigator.push(
+                    context,
+                    new MaterialPageRoute(
+                        builder: (context) => new Parking1()));
+*/
+            },
+          ),
+          new ListTile(
+            title: Text(
+              'Task and Activity',
+              style: TextStyle(color: Colors.white),
+            ),
+            leading: new Icon(
+              FontAwesomeIcons.listUl,
+              color: Colors.white,
+              size: 30.0,
+            ),
+            onTap: () {
+              // Update the state of the app
+              // ...
+              // Then close the drawer
+              Navigator.push(context,
+                  new MaterialPageRoute(builder: (context) => new Task()));
+            },
+          ),
+          new ListTile(
+            title: Text(
+              'Quick Registration',
+              style: TextStyle(color: Colors.white),
+            ),
+            leading: new Icon(
+              FontAwesomeIcons.registered,
+              color: Colors.white,
+              size: 30.0,
+            ),
+            onTap: () {
+              // Update the state of the app
+              // ...
+              // Then close the drawer
+              Navigator.push(
+                  context,
+                  new MaterialPageRoute(
+                      builder: (context) => new Registration()));
+            },
+          ),
+          new ListTile(
+            title: Text(
+              'Alerts',
+              style: TextStyle(color: Colors.white),
+            ),
+            leading: new Icon(
+              FontAwesomeIcons.exclamationTriangle,
+              color: Colors.white,
+              size: 30.0,
+            ),
+            onTap: () {
+              // Update the state of the app
+              // ...
+              // Then close the drawer
+              Navigator.push(context,
+                  new MaterialPageRoute(builder: (context) => new Alert()));
+            },
+          ),
+          new ListTile(
+            title: Text(
+              'Log out',
+              style: TextStyle(color: Colors.white),
+            ),
+            leading: new Icon(
+              FontAwesomeIcons.signOutAlt,
+              color: Colors.white,
+              size: 30.0,
+            ),
+            onTap: () {
+              // Update the state of the app
+              // ...
+              // Then close the drawer
+              logout(context);
+            },
+          ),
+        ]),
+      ),
     );
   }
-}
 
-class AppBarActionsWidget extends StatefulWidget {
-  @override
-  _AppBarActionsWidgetState createState() => _AppBarActionsWidgetState();
-}
-
-class _AppBarActionsWidgetState extends State<AppBarActionsWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
-
-class UserManagemementBody extends StatefulWidget {
-  @override
-  _UserManagemementBodyState createState() => _UserManagemementBodyState();
-}
-
-class _UserManagemementBodyState extends State<UserManagemementBody> {
-  bool isBlacklisted = false;
-
-  Widget buildRow(BuildContext context) {
+  Widget buildDescriptionRow(BuildContext context) {
     return ListView(
       shrinkWrap: false,
       children: <Widget>[
@@ -385,7 +362,7 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                 Padding(
                   padding: const EdgeInsets.only(top: 24.0),
                   child: Text(
-                    'Plate # TS 01 CH 2019',
+                    vehicleNumber,
                     style: new TextStyle(color: Colors.black, fontSize: 20.0),
                     textAlign: TextAlign.center,
                   ),
@@ -424,7 +401,7 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                                 textAlign: TextAlign.end,
                               ),
                               Text(
-                                'Vehicle type:',
+                                vehicleType ?? "",
                                 style: new TextStyle(
                                     color: Colors.black, fontSize: 15.0),
                                 textAlign: TextAlign.end,
@@ -434,8 +411,8 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(12.0),
-                          child: Row(                            mainAxisAlignment: MainAxisAlignment.end,
-
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
                               Text(
                                 'User Id:',
@@ -444,7 +421,7 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                                 textAlign: TextAlign.end,
                               ),
                               Text(
-                                'User Id:',
+                                userId ?? "",
                                 style: new TextStyle(
                                     color: Colors.black, fontSize: 15.0),
                                 textAlign: TextAlign.end,
@@ -454,8 +431,8 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(12.0),
-                          child: Row(                            mainAxisAlignment: MainAxisAlignment.end,
-
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
                               Text(
                                 'Start time:',
@@ -464,7 +441,7 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                                 textAlign: TextAlign.end,
                               ),
                               Text(
-                                'Start time:',
+                                startTime ?? "",
                                 style: new TextStyle(
                                     color: Colors.black, fontSize: 15.0),
                                 textAlign: TextAlign.end,
@@ -474,8 +451,8 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(12.0),
-                          child: Row(                            mainAxisAlignment: MainAxisAlignment.end,
-
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
                               Text(
                                 'End time:',
@@ -484,7 +461,7 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                                 textAlign: TextAlign.end,
                               ),
                               Text(
-                                'End time:',
+                                endTime ?? "",
                                 style: new TextStyle(
                                     color: Colors.black, fontSize: 15.0),
                                 textAlign: TextAlign.end,
@@ -494,8 +471,8 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(12.0),
-                          child: Row(                            mainAxisAlignment: MainAxisAlignment.end,
-
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
                               Text(
                                 'Parking slot:',
@@ -504,7 +481,7 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                                 textAlign: TextAlign.start,
                               ),
                               Text(
-                                'Parking slot:',
+                                parkingSlot ?? "",
                                 style: new TextStyle(
                                     color: Colors.black, fontSize: 15.0),
                                 textAlign: TextAlign.start,
@@ -514,8 +491,8 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(12.0),
-                          child: Row(                            mainAxisAlignment: MainAxisAlignment.end,
-
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
                               Text(
                                 'Applicable fees:',
@@ -524,7 +501,7 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                                 textAlign: TextAlign.end,
                               ),
                               Text(
-                                'Applicable fees:',
+                                appFee ?? "",
                                 style: new TextStyle(
                                     color: Colors.black, fontSize: 15.0),
                                 textAlign: TextAlign.end,
@@ -534,11 +511,11 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(12.0),
-                          child: Row(                            mainAxisAlignment: MainAxisAlignment.end,
-
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
                               Text(
-                                'Payment status:',
+                                'Payment status: ${payStatus ?? ""}',
                                 style: new TextStyle(
                                     color: Colors.black, fontSize: 15.0),
                                 textAlign: TextAlign.start,
@@ -548,8 +525,8 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(12.0),
-                          child: Row(                            mainAxisAlignment: MainAxisAlignment.end,
-
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
                               Text(
                                 'Applicable fines:',
@@ -558,7 +535,7 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                                 textAlign: TextAlign.end,
                               ),
                               Text(
-                                'Applicable fines:',
+                                appFine ?? "",
                                 style: new TextStyle(
                                     color: Colors.black, fontSize: 15.0),
                                 textAlign: TextAlign.end,
@@ -570,8 +547,8 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                     ),
                   ],
                 ),
-                Row(                            mainAxisAlignment: MainAxisAlignment.end,
-
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Padding(
@@ -604,7 +581,7 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                                 child: new Center(
                                   child: Padding(
                                     padding: const EdgeInsets.all(6.0),
-                                    child: new Text("0",
+                                    child: new Text(dues ?? "0",
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 24.0)),
@@ -643,9 +620,9 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                     ),
                   ],
                 ),
-                Row(                            mainAxisAlignment: MainAxisAlignment.end,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   textBaseline: TextBaseline.alphabetic,
-
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisSize: MainAxisSize.max,
                   children: <Widget>[
@@ -667,34 +644,9 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                     Container(
                       margin: EdgeInsets.all(8.0),
                       width: 48.0,
-                      child: TextField(
-                        maxLines: 1,
-                        keyboardType: TextInputType.numberWithOptions(),
-                        style: TextStyle(color: Colors.black, fontSize: 24.0),
-                        inputFormatters: [
-                          WhitelistingTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(7),
-                        ],
-                      ),
+                      child: Text(penalty ?? ""),
                     ),
-                    Column(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: RaisedButton(
-                            color: Colors.orangeAccent,
-                            onPressed: (){},
-                            child: Text(
-                              "Charge",
-                              style: new TextStyle(
-                                color: Colors.black,
-                                fontSize: 16.0,
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
+
                   ],
                 ),
                 Row(
@@ -703,75 +655,94 @@ class _UserManagemementBodyState extends State<UserManagemementBody> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     textBaseline: TextBaseline.alphabetic,
                     children: <Widget>[
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(6.0),
-                        child: Text(
-                          "Blacklist",
-                          style: new TextStyle(
-                              color: Colors.black, fontSize: 24.0),
-                        ),
-                      )
-                    ],
-                  ),
-                  Column(children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(6.0),
-                      child: Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          new Container(
-                            color: Colors.blueGrey,
-                            child: new Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(6.0),
-                                child: InkWell(onTap: (){
-
-                                },
-                                  child: new Text(
-                                    "No",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 24.0,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                              ),
+                          Padding(
+                            padding: const EdgeInsets.all(6.0),
+                            child: Text(
+                              "Blacklist",
+                              style: new TextStyle(
+                                  color: Colors.black, fontSize: 24.0),
                             ),
-                          ),
-                          new Container(
-                            color: Colors.grey,
-                            child: new Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(6.0),
-                                child: InkWell(onTap: (){
-
-                                },
-                                  child: new Text(
-                                    "Yes",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 24.0,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                          )
                         ],
                       ),
-                    ),
-                  ])
-                ]),
+                      Column(children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: Row(
+                            children: <Widget>[
+                              new Container(
+                                color: Colors.blueGrey,
+                                child: new Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(6.0),
+                                    child: InkWell(
+                                      onTap: () {},
+                                      child: new Text(
+                                        "No",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 24.0,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              new Container(
+                                color: Colors.grey,
+                                child: new Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(6.0),
+                                    child: InkWell(
+                                      onTap: () {},
+                                      child: new Text(
+                                        "Yes",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 24.0,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ])
+                    ]),
               ])
         ]),
       ],
     );
   }
 
+  Widget buildAutoSearch() {
+    return Container(
+      width: 250.0,
+      child: ListTile(
+          title: textField,
+          trailing: new IconButton(
+              icon: new Icon(Icons.clear),
+              onPressed: () {
+                print("pressed reset");
+                setState(() {});
+              })),
+    );
+  }
+}
+
+class AppBarActionsWidget extends StatefulWidget {
+  @override
+  _AppBarActionsWidgetState createState() => _AppBarActionsWidgetState();
+}
+
+class _AppBarActionsWidgetState extends State<AppBarActionsWidget> {
   @override
   Widget build(BuildContext context) {
-    return buildRow(context);
+    return Container();
   }
 }
