@@ -301,7 +301,11 @@ class _ParkingLotManagementState extends State<ParkingLotManagement> {
   void initEverything() async{
 
 
-    listAreas.addAll(listDummy.map((dummyString) => dummyString));
+    listAreas.addAll(listDummy.map((dummyString) => DropdownMenuItem(value: dummyString,
+    child: Text(dummyString),)));
 
+    setState(() {
+
+    });
   }
 }
