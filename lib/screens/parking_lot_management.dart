@@ -301,7 +301,7 @@ class _ParkingLotManagementState extends State<ParkingLotManagement> {
   void initEverything() async{
 
 
-    list
+    listAreas.addAll(listDummy.map((dummyString) => dummyString));
 
   }
 }
