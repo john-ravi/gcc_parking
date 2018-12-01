@@ -347,6 +347,7 @@ class DashboardState extends State<Dashboards> with WidgetsBindingObserver {
               icon: Icon(FontAwesomeIcons.productHunt,
                   color: Colors.white, size: DRAWER_ICON_SIZE),
               onPressed: () {
+                stopTimer();
                 Navigator.push(
                     context,
                     MaterialPageRoute(

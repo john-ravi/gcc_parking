@@ -281,45 +281,61 @@ class _ParkingLotManagementState extends State<ParkingLotManagement> {
   }
 
   Widget buildParkingDetailsColumn() {
-    return Column(
-      children: <Widget>[
-        DropdownButtonHideUnderline(
-            child: ButtonTheme(
-          alignedDropdown: true,
-          child: DropdownButton<String>(
-            items: listAreas,
-            onChanged: menuOnchanged,
-            value: menuValue ?? "",
-            style: new TextStyle(
-              color: Colors.black,
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          DropdownButtonHideUnderline(
+              child: ButtonTheme(
+            alignedDropdown: true,
+            child: DropdownButton<String>(
+              items: listAreas,
+
+              onChanged: menuOnchanged,
+              value: menuValue == "" ? null : menuValue,
+              style: new TextStyle(
+                color: Colors.black,
+              ),
+            ),
+          )),
+          Padding(
+            padding: EdgeInsets.only(top: 24.0),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: <Widget>[
+                Container(width: 24.0,child: Image.asset("assets/images/white.png")),
+                Text("Total Slots $totalSlots")
+              ],
             ),
           ),
-        )),
-        Padding(
-          padding: EdgeInsets.only(top: 24.0),
-        ),
-        Row(
-          children: <Widget>[
-            Image.asset("assets/images/white.png"),
-            Text("Total Slots $totalSlots")
-          ],
-        ),
-        Row(
-          children: <Widget>[
-            Image.asset("assets/images/red.png"),
-            Text("Total Slots $occupiedSlots")
-          ],
-        ),
-        Row(
-          children: <Widget>[
-            Image.asset("assets/images/green.png"),
-            Text("Total Slots $availableSlots")
-          ],
-        ),
-
-
-        GridView.count(crossAxisCount: 7, children: <Widget>[Image.asset("assets/images/green.png")],)
-      ],
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: <Widget>[
+                Container(width: 24.0,child: Image.asset("assets/images/red.png")),
+                Text("Total Slots $occupiedSlots")
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: <Widget>[
+                Container(width: 24.0,child: Image.asset("assets/images/green.png")),
+                Text("Total Slots $availableSlots")
+              ],
+            ),
+          ),
+/*
+          GridView.count(
+            crossAxisCount: 7,
+            children: <Widget>[Image.asset("assets/images/green.png")],
+          ),
+*/
+        ],
+      ),
     );
   }
 
@@ -328,7 +344,7 @@ class _ParkingLotManagementState extends State<ParkingLotManagement> {
   void initEverything() async {
     listAreas.addAll(listDummy.map((dummyString) => DropdownMenuItem(
           value: dummyString,
-          child: Text(dummyString),
+          child: Text(dummyString) ?? "",
         )));
 
     setState(() {});
