@@ -18,7 +18,7 @@ class ParkingLotManagement extends StatefulWidget {
 class _ParkingLotManagementState extends State<ParkingLotManagement> {
   List<DropdownMenuItem<String>> listAreas = new List();
 
-  String menuValue = "";
+  String menuValue = "Select Area";
   String totalSlots = "";
   String availableSlots = "";
   String occupiedSlots = "";
@@ -285,19 +285,22 @@ class _ParkingLotManagementState extends State<ParkingLotManagement> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          DropdownButtonHideUnderline(
-              child: ButtonTheme(
-            alignedDropdown: true,
-            child: DropdownButton<String>(
-              items: listAreas,
+          Container(
 
-              onChanged: menuOnchanged,
-              value: menuValue == "" ? null : menuValue,
-              style: new TextStyle(
-                color: Colors.black,
+            child: DropdownButtonHideUnderline(
+                child: ButtonTheme(
+              alignedDropdown: true,minWidth: 200.0,
+              child: DropdownButton<String>(
+                items: listAreas,
+
+                onChanged: menuOnchanged,
+                value: menuValue == "" ? null : menuValue,
+                style: new TextStyle(
+                  color: Colors.black,
+                ),
               ),
-            ),
-          )),
+            )),
+          ),
           Padding(
             padding: EdgeInsets.only(top: 24.0),
           ),
