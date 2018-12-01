@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gcc_parking/models/model_vehicle.dart';
+import 'package:gcc_parking/screens/parking_lot_management.dart';
 import 'package:gcc_parking/utils/actionUtils.dart';
 import 'package:gcc_parking/utils/appConstants.dart';
 import 'package:gcc_parking/utils/networkUtils.dart';
@@ -28,9 +29,21 @@ class UserState extends State<User> {
   Vehicle currentVehicle = new Vehicle();
   bool isBlacklisted = false;
 
-  String vehicleNumber = "XX XX XX XXXX";
+  String vehicleNumber = "Plate # XX XX XX XXXX";
+  String rawVehicleNumber;
 
-  String vehicleType, userId, startTime, endTime, parkingSlot, appFee, payStatus, appFine, dues, penalty;
+  String vehicleType,
+      userId,
+      startTime,
+      endTime,
+      parkingSlot,
+      appFee,
+      payStatus,
+      appFine,
+      dues,
+      penalty;
+
+  bool blacklisted = false;
 
   @override
   void initState() {
@@ -44,6 +57,7 @@ class UserState extends State<User> {
     suggestions = await getVehicles(context);
     textField.updateSuggestions(suggestions);
     print("updated suggestions");
+
 /*
     Future.delayed(
         Duration(
@@ -90,53 +104,21 @@ class UserState extends State<User> {
         ),
         style: TextStyle(color: Colors.black, fontSize: 18.0),
         key: keySearchVehicle,
-        //    suggestionsAmount: 7,
+        suggestionsAmount: 7,
+        itemSubmitted: (vehicle) {
+          showVehicle(vehicle);
+        },
         submitOnSuggestionTap: true,
         clearOnSubmit: true,
         suggestions: suggestions,
         textCapitalization: TextCapitalization.characters,
         textInputAction: TextInputAction.go,
         textChanged: (item) {
-          /*keySearchVehicle.currentState.textField.inputFormatters.addAll([
-            WhitelistingTextInputFormatter(RegExp("^[A-Za-z0-9]+")),
-          ]);*/
-
           print("currwent $item");
           print("list ${suggestions.toString()}");
         },
         textSubmitted: (item) {
           print("Submitteed $item");
-
-          // textField.key.currentState.textField.controller = ;
-          currentVehicle = suggestions.firstWhere((vehicle) {
-            print("see ${vehicle.vehiclePlateNumber} and $item");
-            if (vehicle.vehiclePlateNumber == item) {
-              return true;
-            } else {
-              return false;
-            }
-          });
-
-          vehicleNumber = currentVehicle.vehiclePlateNumber;
-          vehicleType = currentVehicle.vehicleType;
-          userId = currentVehicle.userId;
-          startTime = currentVehicle.startTime;
-          endTime = currentVehicle.endTime;
-          parkingSlot = currentVehicle.parkingSlot;
-          appFee = currentVehicle.applicableFee;
-          payStatus = currentVehicle.payementStatus;
-          appFine = currentVehicle.applicableFine;
-          dues = currentVehicle.due;
-          penalty = currentVehicle.penalty;
-
-          setState(() {
-
-          });
-
-
-          vehicleNumber = 'Plate # ${vehicleNumber.substring(0, 2)} ${vehicleNumber.substring(2, 4)} ${vehicleNumber.substring(4, 6)} ${vehicleNumber.substring(6)}';
-
-          setState(() {});
         },
         itemBuilder: (context, item) {
           return new Padding(
@@ -151,6 +133,27 @@ class UserState extends State<User> {
               .toLowerCase()
               .startsWith(query.toLowerCase());
         });
+  }
+
+  void showVehicle(Vehicle vehicle) {
+    currentVehicle = vehicle;
+    rawVehicleNumber = currentVehicle.vehiclePlateNumber;
+    vehicleNumber = currentVehicle.vehiclePlateNumber;
+    vehicleType = currentVehicle.vehicleType;
+    userId = currentVehicle.userId;
+    startTime = currentVehicle.startTime;
+    endTime = currentVehicle.endTime;
+    parkingSlot = currentVehicle.parkingSlot;
+    appFee = currentVehicle.applicableFee;
+    payStatus = currentVehicle.payementStatus;
+    appFine = currentVehicle.applicableFine;
+    dues = currentVehicle.due;
+    penalty = currentVehicle.penalty;
+
+    vehicleNumber =
+        'Plate # ${vehicleNumber.substring(0, 2)} ${vehicleNumber.substring(2, 4)} ${vehicleNumber.substring(4, 6)} ${vehicleNumber.substring(6)}';
+
+    setState(() {});
   }
 
   Drawer buildDrawer(BuildContext context) {
@@ -313,10 +316,8 @@ class UserState extends State<User> {
                     icon: Icon(FontAwesomeIcons.productHunt,
                         color: Colors.white, size: DRAWER_ICON_SIZE),
                     onPressed: () {
-/*
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Parking1()));
-*/
+                        MaterialPageRoute(builder: (context) => ParkingLotManagement()));
                     },
                   ),
                   IconButton(
@@ -356,368 +357,383 @@ class UserState extends State<User> {
               ),
             ),
           ),
-          Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(top: 24.0),
-                  child: Text(
-                    vehicleNumber,
-                    style: new TextStyle(color: Colors.black, fontSize: 20.0),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                Row(
-                  children: <Widget>[
-                    Column(
-                      children: <Widget>[
-                        Text(
-                          isBlacklisted ? stringBlackList : "",
-                          style: new TextStyle(
-                              color: Colors.red,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w800),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: <Widget>[
-                              Text(
-                                'Vehicle type:',
-                                style: new TextStyle(
-                                    color: Colors.black, fontSize: 15.0),
-                                textAlign: TextAlign.end,
-                              ),
-                              Text(
-                                vehicleType ?? "",
-                                style: new TextStyle(
-                                    color: Colors.black, fontSize: 15.0),
-                                textAlign: TextAlign.end,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: <Widget>[
-                              Text(
-                                'User Id:',
-                                style: new TextStyle(
-                                    color: Colors.black, fontSize: 15.0),
-                                textAlign: TextAlign.end,
-                              ),
-                              Text(
-                                userId ?? "",
-                                style: new TextStyle(
-                                    color: Colors.black, fontSize: 15.0),
-                                textAlign: TextAlign.end,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: <Widget>[
-                              Text(
-                                'Start time:',
-                                style: new TextStyle(
-                                    color: Colors.black, fontSize: 15.0),
-                                textAlign: TextAlign.end,
-                              ),
-                              Text(
-                                startTime ?? "",
-                                style: new TextStyle(
-                                    color: Colors.black, fontSize: 15.0),
-                                textAlign: TextAlign.end,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: <Widget>[
-                              Text(
-                                'End time:',
-                                style: new TextStyle(
-                                    color: Colors.black, fontSize: 15.0),
-                                textAlign: TextAlign.end,
-                              ),
-                              Text(
-                                endTime ?? "",
-                                style: new TextStyle(
-                                    color: Colors.black, fontSize: 15.0),
-                                textAlign: TextAlign.end,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: <Widget>[
-                              Text(
-                                'Parking slot:',
-                                style: new TextStyle(
-                                    color: Colors.black, fontSize: 15.0),
-                                textAlign: TextAlign.start,
-                              ),
-                              Text(
-                                parkingSlot ?? "",
-                                style: new TextStyle(
-                                    color: Colors.black, fontSize: 15.0),
-                                textAlign: TextAlign.start,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: <Widget>[
-                              Text(
-                                'Applicable fees:',
-                                style: new TextStyle(
-                                    color: Colors.black, fontSize: 15.0),
-                                textAlign: TextAlign.end,
-                              ),
-                              Text(
-                                appFee ?? "",
-                                style: new TextStyle(
-                                    color: Colors.black, fontSize: 15.0),
-                                textAlign: TextAlign.end,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: <Widget>[
-                              Text(
-                                'Payment status: ${payStatus ?? ""}',
-                                style: new TextStyle(
-                                    color: Colors.black, fontSize: 15.0),
-                                textAlign: TextAlign.start,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: <Widget>[
-                              Text(
-                                'Applicable fines:',
-                                style: new TextStyle(
-                                    color: Colors.black, fontSize: 15.0),
-                                textAlign: TextAlign.end,
-                              ),
-                              Text(
-                                appFine ?? "",
-                                style: new TextStyle(
-                                    color: Colors.black, fontSize: 15.0),
-                                textAlign: TextAlign.end,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(6.0),
-                            child: Text(
-                              "Due's",
-                              style: new TextStyle(
-                                color: Colors.black,
-                                fontSize: 24.0,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Row(
-                            children: <Widget>[
-                              new Container(
-                                color: Colors.grey,
-                                child: new Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(6.0),
-                                    child: new Text(dues ?? "0",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 24.0)),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Text(
-                            "",
-                            // "Send Reminder",
-                            style: new TextStyle(
-                                color: Colors.black,
-                                fontSize: 10.0,
-                                fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(6.0),
-                            child: Text(
-                              "",
-                              style: new TextStyle(
-                                color: Colors.black,
-                                fontSize: 10.0,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  textBaseline: TextBaseline.alphabetic,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  children: <Widget>[
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            "Penalty",
-                            style: new TextStyle(
-                              color: Colors.black,
-                              fontSize: 24.0,
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                    Container(
-                      margin: EdgeInsets.all(8.0),
-                      width: 48.0,
-                      child: Text(penalty ?? ""),
-                    ),
-
-                  ],
-                ),
-                Row(
-                    mainAxisSize: MainAxisSize.max,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: <Widget>[
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(6.0),
-                            child: Text(
-                              "Blacklist",
-                              style: new TextStyle(
-                                  color: Colors.black, fontSize: 24.0),
-                            ),
-                          )
-                        ],
-                      ),
-                      Column(children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.all(6.0),
-                          child: Row(
-                            children: <Widget>[
-                              new Container(
-                                color: Colors.blueGrey,
-                                child: new Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(6.0),
-                                    child: InkWell(
-                                      onTap: () {},
-                                      child: new Text(
-                                        "No",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 24.0,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              new Container(
-                                color: Colors.grey,
-                                child: new Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(6.0),
-                                    child: InkWell(
-                                      onTap: () {},
-                                      child: new Text(
-                                        "Yes",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 24.0,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ])
-                    ]),
-              ])
+          buildVehicleDetailsColumn()
         ]),
       ],
     );
+  }
+
+  Column buildVehicleDetailsColumn() {
+    return Column(crossAxisAlignment: CrossAxisAlignment.center, children: <
+            Widget>[
+          Padding(
+            padding: const EdgeInsets.only(top: 24.0),
+            child: Text(
+              vehicleNumber,
+              style: new TextStyle(color: Colors.black, fontSize: 20.0),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Row(
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  Text(
+                    isBlacklisted ? stringBlackList : "",
+                    style: new TextStyle(
+                        color: Colors.red,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w800),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Row(
+            children: <Widget>[
+              Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Text(
+                          'Vehicle type:',
+                          style: new TextStyle(
+                              color: Colors.black, fontSize: 15.0),
+                          textAlign: TextAlign.end,
+                        ),
+                        Text(
+                          vehicleType ?? "",
+                          style: new TextStyle(
+                              color: Colors.black, fontSize: 15.0),
+                          textAlign: TextAlign.end,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Text(
+                          'User Id:',
+                          style: new TextStyle(
+                              color: Colors.black, fontSize: 15.0),
+                          textAlign: TextAlign.end,
+                        ),
+                        Text(
+                          userId ?? "",
+                          style: new TextStyle(
+                              color: Colors.black, fontSize: 15.0),
+                          textAlign: TextAlign.end,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Text(
+                          'Start time:',
+                          style: new TextStyle(
+                              color: Colors.black, fontSize: 15.0),
+                          textAlign: TextAlign.end,
+                        ),
+                        Text(
+                          startTime ?? "",
+                          style: new TextStyle(
+                              color: Colors.black, fontSize: 15.0),
+                          textAlign: TextAlign.end,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Text(
+                          'End time:',
+                          style: new TextStyle(
+                              color: Colors.black, fontSize: 15.0),
+                          textAlign: TextAlign.end,
+                        ),
+                        Text(
+                          endTime ?? "",
+                          style: new TextStyle(
+                              color: Colors.black, fontSize: 15.0),
+                          textAlign: TextAlign.end,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Text(
+                          'Parking slot:',
+                          style: new TextStyle(
+                              color: Colors.black, fontSize: 15.0),
+                          textAlign: TextAlign.start,
+                        ),
+                        Text(
+                          parkingSlot ?? "",
+                          style: new TextStyle(
+                              color: Colors.black, fontSize: 15.0),
+                          textAlign: TextAlign.start,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Text(
+                          'Applicable fees:',
+                          style: new TextStyle(
+                              color: Colors.black, fontSize: 15.0),
+                          textAlign: TextAlign.end,
+                        ),
+                        Text(
+                          appFee ?? "",
+                          style: new TextStyle(
+                              color: Colors.black, fontSize: 15.0),
+                          textAlign: TextAlign.end,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Text(
+                          'Payment status: ${payStatus ?? ""}',
+                          style: new TextStyle(
+                              color: Colors.black, fontSize: 15.0),
+                          textAlign: TextAlign.start,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Text(
+                          'Applicable fines:',
+                          style: new TextStyle(
+                              color: Colors.black, fontSize: 15.0),
+                          textAlign: TextAlign.end,
+                        ),
+                        Text(
+                          appFine ?? "",
+                          style: new TextStyle(
+                              color: Colors.black, fontSize: 15.0),
+                          textAlign: TextAlign.end,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(6.0),
+                      child: Text(
+                        "Due's",
+                        style: new TextStyle(
+                          color: Colors.black,
+                          fontSize: 24.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        new Container(
+                          color: Colors.grey,
+                          child: new Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(6.0),
+                              child: new Text(dues ?? "0",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 24.0)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            textBaseline: TextBaseline.alphabetic,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Penalty",
+                      style: new TextStyle(
+                        color: Colors.black,
+                        fontSize: 24.0,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        new Container(
+                          color: Colors.grey,
+                          child: new Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(6.0),
+                              child: new Text(penalty ?? "0",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 24.0)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Row(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
+              textBaseline: TextBaseline.alphabetic,
+              children: <Widget>[
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(6.0),
+                      child: Text(
+                        "Blacklist",
+                        style: new TextStyle(
+                            color: Colors.black, fontSize: 24.0),
+                      ),
+                    )
+                  ],
+                ),
+                Column(children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: Row(
+                      children: <Widget>[
+                        new Container(
+                          //blacklited = true means No hsould display grey
+                          color: blacklisted ? Colors.grey : Colors.blueGrey,
+                          child: new Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(6.0),
+                              child: InkWell(
+                                onTap: () {
+                                  if (blacklisted == true) {
+                                    setState(() {
+                                      blacklisted = false;
+                                    });
+
+                                    updateVehicleBlacklistStatus(
+                                        rawVehicleNumber, userId, blacklisted);
+                                  }
+                                },
+                                child: new Text(
+                                  "No",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24.0,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        new Container(
+                          color: blacklisted ? Colors.blueGrey : Colors.grey,
+                          child: new Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(6.0),
+                              child: InkWell(
+                                onTap: () {
+                                  if (blacklisted == false) {
+                                    setState(() {
+                                      blacklisted = true;
+                                    });
+
+                                    updateVehicleBlacklistStatus(
+                                        rawVehicleNumber, userId, blacklisted);
+                                  }
+
+                                },
+                                child: new Text(
+                                  "Yes",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24.0,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ])
+              ]),
+        ]);
   }
 
   Widget buildAutoSearch() {
@@ -735,14 +751,3 @@ class UserState extends State<User> {
   }
 }
 
-class AppBarActionsWidget extends StatefulWidget {
-  @override
-  _AppBarActionsWidgetState createState() => _AppBarActionsWidgetState();
-}
-
-class _AppBarActionsWidgetState extends State<AppBarActionsWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}

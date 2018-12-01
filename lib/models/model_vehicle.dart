@@ -11,6 +11,7 @@ class Vehicle {
   String applicableFine="";
   String penalty="";
   String due="";
+  bool blacklisted= false;
 
   Vehicle();
 
@@ -26,6 +27,7 @@ class Vehicle {
     this.applicableFine,
     this.penalty,
     this.due,
+    this.blacklisted
   });
 /*
 *
@@ -58,6 +60,7 @@ class Vehicle {
     this.applicableFine = map["Applicable Fine"];
     this.due = map["Due"];
     this.penalty = map["Penalty"];
+    this.blacklisted = map["Black List"] != 0 ? true : false;
   }
 
   @override

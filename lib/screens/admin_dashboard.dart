@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../models/app_colors.dart';
 
 import '../fragments/alerts_admin.dart';
-import '../fragments/parking_lot_management.dart';
+import 'package:gcc_parking/screens/parking_lot_management.dart';
 import '../fragments/quick_registration.dart';
 import '../fragments/task_and_activity.dart';
 import '../fragments/users_managment.dart';

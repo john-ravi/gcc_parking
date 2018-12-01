@@ -159,6 +159,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                 await validateAndLogin(
                     control_loginId.text, control_password.text, context)
                     .then((boolValid) {
+                      print("in then validateLogin");
                   removeloader();
                   if (boolValid) {
                     gotoHome(context);

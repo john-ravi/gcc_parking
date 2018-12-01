@@ -19,28 +19,40 @@ Future<bool> validateAndLogin(
   });
 
   d(uri);
-  http.Response httpResponse = await http.post(uri);
 
-  bool valid = false;
-  if (httpResponse.statusCode == 200) {
-    // If the call to the server was successful, parse the JSON
-    var decodedBody = json.decode(httpResponse.body);
-    print("decoded body \t" + decodedBody.toString());
+  http.Response httpResponse;
+  bool valid;
+  try {
+    httpResponse = await http.post(uri);
+    valid = false;
+    if (httpResponse.statusCode == 200) {
+      // If the call to the server was successful, parse the JSON
+      var decodedBody = json.decode(httpResponse.body);
+      print("decoded body \t" + decodedBody.toString());
 
-    valid = decodedBody["status"] == "success";
-    if (valid) {
-      showToast("Logging In - Welcome");
+      valid = decodedBody["status"] == "success";
+      if (valid) {
+        showToast("Logging In - Welcome");
+      } else {
+        showToast("Please Check Login Details");
+      }
     } else {
-      showToast("Please Check Login Details");
+      showToast("Network Error - ${httpResponse.reasonPhrase}");
     }
-  } else {
-    showToast("Network Error - ${httpResponse.reasonPhrase}");
+
+    print("Last Mile check validate $valid");
+  } catch (e) {
+    print(e);
+
+    Future.delayed(Duration(milliseconds: 700),
+        () => validateAndLogin(agent_email, agent_pwd, context));
   }
 
+  print("before returning validate $valid");
   return valid;
-
 }
-Future<bool> dummy (
+
+Future<bool> dummy(
     String agent_email, String agent_pwd, BuildContext context) async {
 /*action=agent_login&agent_email=test@gmail.com&agent_pwd=456123*/
   var uri = Uri.http(authority, unencodedPath, {
@@ -54,7 +66,7 @@ Future<bool> dummy (
   if (httpResponse.statusCode == 200) {
     // If the call to the server was successful, parse the JSON
     var decodedBody = json.decode(httpResponse.body);
- //   print("decoded body \t" + decodedBody.toString());
+    //   print("decoded body \t" + decodedBody.toString());
 
     valid = decodedBody["status"] == "success";
     if (valid) {
@@ -67,13 +79,9 @@ Future<bool> dummy (
   }
 
   return true;
-
 }
 
-
-Future<int> getTotalVehicles (BuildContext context) async {
-
-
+Future<int> getTotalVehicles(BuildContext context) async {
   int countVehicles = 0;
   var uri = Uri.http(authority, unencodedPath, {
     "action": "occupied_slots",
@@ -82,7 +90,6 @@ Future<int> getTotalVehicles (BuildContext context) async {
 //  d(uri);
   http.Response httpResponse = await http.post(uri);
 
-  bool valid = false;
   if (httpResponse.statusCode == 200) {
     // If the call to the server was successful, parse the JSON
     var decodedBody = json.decode(httpResponse.body);
@@ -90,24 +97,21 @@ Future<int> getTotalVehicles (BuildContext context) async {
 
     List listRaw = decodedBody["all_slots"];
     listRaw.forEach((slot) {
-   //   print("Row \t $slot and oo ${slot["Occupied slots"]}");
-      if(slot["occupied_slots"] == "1"){
-
+      //   print("Row \t $slot and oo ${slot["Occupied slots"]}");
+      if (slot["occupied_slots"] == "1") {
         countVehicles++;
       }
     });
-
   } else {
     showToast("Network Error - ${httpResponse.reasonPhrase}");
   }
 
 //  print("Count $countVehicles");
   return countVehicles;
-
 }
-Future<List<Vehicle>> getVehicles (BuildContext context) async {
 
-List<Vehicle> listVehicles = new List();
+Future<List<Vehicle>> getVehicles(BuildContext context) async {
+  List<Vehicle> listVehicles = new List();
   var uri = Uri.http(authority, unencodedPath, {
     "action": "user_details",
   });
@@ -118,7 +122,7 @@ List<Vehicle> listVehicles = new List();
   if (httpResponse.statusCode == 200) {
     // If the call to the server was successful, parse the JSON
     var decodedBody = json.decode(httpResponse.body);
-   print("decoded body \t" + decodedBody.toString());
+    print("decoded body \t" + decodedBody.toString());
 
     List listRaw = decodedBody["all_users"];
 
@@ -135,54 +139,99 @@ List<Vehicle> listVehicles = new List();
             "Penalty": "10",
             "Due": "30",
             "Profile": "http://18.191.190.195/gccparking/admin/"
+             "Black List": "0"
     * */
     listRaw.forEach((vehicle) {
-   //   print("Row \t $slot and oo ${slot["Occupied slots"]}");
+      //   print("Row \t $slot and oo ${slot["Occupied slots"]}");
 
-     listVehicles.add(Vehicle.fromMap(vehicle));
+      listVehicles.add(Vehicle.fromMap(vehicle));
     });
-
   } else {
     showToast("Network Error - ${httpResponse.reasonPhrase}");
   }
 
 //  print("Count $countVehicles");
   return listVehicles;
-
 }
 
-
-Future<double> getTotalPayments (BuildContext context) async {
-
-
+Future<double> getTotalPayments(BuildContext context) async {
   double totalPayments = 0.0;
   var uri = Uri.http(authority, unencodedPath, {
     "action": "payments",
   });
 
- // d(uri);
+  // d(uri);
   http.Response httpResponse = await http.post(uri);
 
-  String valid = "df";
   if (httpResponse.statusCode == 200) {
     // If the call to the server was successful, parse the JSON
     var decodedBody = json.decode(httpResponse.body);
- //  print("decoded body \t" + decodedBody.toString());
+    //  print("decoded body \t" + decodedBody.toString());
 
     List listRaw = decodedBody["all_paymets"];
     listRaw.forEach((row) {
       String amountInString = row["total_amount"];
-  //    print("Row \t $row and oo $amountInString");
+      //    print("Row \t $row and oo $amountInString");
       totalPayments += double.tryParse(amountInString);
     });
-
   } else {
     showToast("Network Error - ${httpResponse.reasonPhrase}");
   }
 
   print("Count $totalPayments");
   return totalPayments;
+}
 
+Future<bool> updateVehicleBlacklistStatus(
+    String vehicleNumber, String uid, bool blacklisted) async {
+  vehicleNumber = vehicleNumber.substring(0, 2) +
+      "-" +
+      vehicleNumber.substring(2, 4) +
+      "-" +
+      vehicleNumber.substring(4, 6) +
+      "-" +
+      vehicleNumber.substring(6);
+
+  print("Vehicle no $vehicleNumber");
+
+  var uri = Uri.http(authority, unencodedPath, {
+    "action": "user_bstatus",
+    "v_plate_no": vehicleNumber,
+    "uid": uid,
+    "black_list": blacklisted ? "1" : "0",
+  });
+
+  /*
+  * http://18.191.190.195/gccparking/parkingapi/parkingapi.php?action=user_bstatus&v_plate_no=TN-09-PN-0000&uid=1&black_list=0
+  * */
+
+  http.Response httpResponse;
+  try {
+    httpResponse = await http.post(uri);
+
+    d(uri);
+
+    if (httpResponse.statusCode == 200) {
+      // If the call to the server was successful, parse the JSON
+      var decodedBody = json.decode(httpResponse.body);
+      print("decoded body \t" + decodedBody.toString());
+
+      //    "status": "success",
+      if (decodedBody["status"] == "success") {
+        showToast(
+            "$vehicleNumber is ${blacklisted ? "Blacklisted" : "Not Blacklisted"}");
+      } else {
+        print("Invalid Vehicle Detaiuls");
+      }
+    } else {
+      showToast("Network Error - ${httpResponse.reasonPhrase}");
+    }
+  } catch (e) {
+    showToast("Please Check Network");
+    print(e);
+  }
+
+  return null;
 }
 
 // Multiple Rows

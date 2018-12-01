@@ -8,6 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 /// Bar chart example
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:gcc_parking/screens/parking_lot_management.dart';
 import 'package:gcc_parking/utils/actionUtils.dart';
 
 import 'user.dart';
@@ -346,11 +347,10 @@ class DashboardState extends State<Dashboards> with WidgetsBindingObserver {
               icon: Icon(FontAwesomeIcons.productHunt,
                   color: Colors.white, size: DRAWER_ICON_SIZE),
               onPressed: () {
-/*
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Parking1()));
-*/
-              },
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ParkingLotManagement()));              },
             ),
             IconButton(
               icon: Icon(FontAwesomeIcons.listUl,
