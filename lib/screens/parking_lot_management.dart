@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'package:gcc_parking/models/model_vehicle.dart';
 import 'package:gcc_parking/screens/user.dart';
 import 'package:gcc_parking/utils/actionUtils.dart';
 import 'package:gcc_parking/utils/appConstants.dart';
@@ -9,6 +8,7 @@ import 'package:gcc_parking/utils/networkUtils.dart';
 import 'registration.dart';
 import 'task.dart';
 import 'alerts.dart';
+import 'package:gcc_parking/utils/appConstants.dart';
 
 class ParkingLotManagement extends StatefulWidget {
   @override
@@ -16,6 +16,18 @@ class ParkingLotManagement extends StatefulWidget {
 }
 
 class _ParkingLotManagementState extends State<ParkingLotManagement> {
+
+  List<DropdownMenuItem<String>> listAreas = new List();
+
+  String menuValue = "";
+
+  @override
+  void initState() {
+
+    initEverything();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -272,14 +284,24 @@ class _ParkingLotManagementState extends State<ParkingLotManagement> {
         child: ButtonTheme(
           alignedDropdown: true,
           child: DropdownButton<String>(
-            items: dropdownItems,
-            onChanged: this.onChanged,
-            value: this.preSelected,
+            items: listAreas,
+            onChanged: menuOnchanged,
+            value: menuValue ?? "",
             style: new TextStyle(
               color: Colors.black,
             ),
           ),
         )
     ),);
+  }
+
+  void menuOnchanged(String value) {
+  }
+
+  void initEverything() async{
+
+
+    list
+
   }
 }
