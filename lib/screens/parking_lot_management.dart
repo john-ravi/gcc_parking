@@ -16,14 +16,15 @@ class ParkingLotManagement extends StatefulWidget {
 }
 
 class _ParkingLotManagementState extends State<ParkingLotManagement> {
-
   List<DropdownMenuItem<String>> listAreas = new List();
 
   String menuValue = "";
+  String totalSlots = "";
+  String availableSlots = "";
+  String occupiedSlots = "";
 
   @override
   void initState() {
-
     initEverything();
     super.initState();
   }
@@ -58,11 +59,13 @@ class _ParkingLotManagementState extends State<ParkingLotManagement> {
   Widget buildDescriptionRow(BuildContext context) {
     return ListView(
       shrinkWrap: false,
-
       children: <Widget>[
-        Row(mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,children: <Widget>[
-              Container(color: Colors.orangeAccent,
+        Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                color: Colors.orangeAccent,
                 child: Card(
                   elevation: 8.0,
                   margin: EdgeInsets.only(right: 10.0),
@@ -81,70 +84,68 @@ class _ParkingLotManagementState extends State<ParkingLotManagement> {
   Column buildQuickNavColumn(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(
-                    FontAwesomeIcons.users,
-                    color: Colors.white,
-                    size: DRAWER_ICON_SIZE,
-                  ),
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => User()));
-                  },
-                ),
-                IconButton(
-                  icon: Icon(
-                    FontAwesomeIcons.productHunt,
-                    color: selectionIconColor,
-                    size: DRAWER_ICON_SIZE * 1.16,
-                  ),
-                  onPressed: () {
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        IconButton(
+          icon: Icon(
+            FontAwesomeIcons.users,
+            color: Colors.white,
+            size: DRAWER_ICON_SIZE,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => User()));
+          },
+        ),
+        IconButton(
+          icon: Icon(
+            FontAwesomeIcons.productHunt,
+            color: selectionIconColor,
+            size: DRAWER_ICON_SIZE * 1.16,
+          ),
+          onPressed: () {
 /*
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) => Parking1()));
 */
-                  },
-                ),
-                IconButton(
-                  icon: Icon(
-                    FontAwesomeIcons.listUl,
-                    color: Colors.white,
-                    size: DRAWER_ICON_SIZE,
-                  ),
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Task()));
-                  },
-                ),
-                IconButton(
-                  icon: Icon(FontAwesomeIcons.registered,
-                      color: Colors.white, size: DRAWER_ICON_SIZE),
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => Registration()));
-                  },
-                ),
-                IconButton(
-                  icon: Icon(FontAwesomeIcons.exclamationTriangle,
-                      color: Colors.white, size: DRAWER_ICON_SIZE),
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => (Alert())));
-                  },
-                ),
-                IconButton(
-                  icon: Icon(FontAwesomeIcons.signOutAlt,
-                      color: Colors.white, size: DRAWER_ICON_SIZE),
-                  onPressed: () {
-                    logout(context);
-                  },
-                ),
-              ],
-            );
+          },
+        ),
+        IconButton(
+          icon: Icon(
+            FontAwesomeIcons.listUl,
+            color: Colors.white,
+            size: DRAWER_ICON_SIZE,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Task()));
+          },
+        ),
+        IconButton(
+          icon: Icon(FontAwesomeIcons.registered,
+              color: Colors.white, size: DRAWER_ICON_SIZE),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => Registration()));
+          },
+        ),
+        IconButton(
+          icon: Icon(FontAwesomeIcons.exclamationTriangle,
+              color: Colors.white, size: DRAWER_ICON_SIZE),
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => (Alert())));
+          },
+        ),
+        IconButton(
+          icon: Icon(FontAwesomeIcons.signOutAlt,
+              color: Colors.white, size: DRAWER_ICON_SIZE),
+          onPressed: () {
+            logout(context);
+          },
+        ),
+      ],
+    );
   }
 
   Drawer buildDrawer(BuildContext context) {
@@ -280,8 +281,10 @@ class _ParkingLotManagementState extends State<ParkingLotManagement> {
   }
 
   Widget buildParkingDetailsColumn() {
-    return Container(height: 900.0, width: 300.0, color: Colors.black, child: DropdownButtonHideUnderline(
-        child: ButtonTheme(
+    return Column(
+      children: <Widget>[
+        DropdownButtonHideUnderline(
+            child: ButtonTheme(
           alignedDropdown: true,
           child: DropdownButton<String>(
             items: listAreas,
@@ -291,21 +294,43 @@ class _ParkingLotManagementState extends State<ParkingLotManagement> {
               color: Colors.black,
             ),
           ),
-        )
-    ),);
+        )),
+        Padding(
+          padding: EdgeInsets.only(top: 24.0),
+        ),
+        Row(
+          children: <Widget>[
+            Image.asset("assets/images/white.png"),
+            Text("Total Slots $totalSlots")
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Image.asset("assets/images/red.png"),
+            Text("Total Slots $occupiedSlots")
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Image.asset("assets/images/green.png"),
+            Text("Total Slots $availableSlots")
+          ],
+        ),
+
+
+        GridView.count(crossAxisCount: 7, children: <Widget>[Image.asset("assets/images/green.png")],)
+      ],
+    );
   }
 
-  void menuOnchanged(String value) {
-  }
+  void menuOnchanged(String value) {}
 
-  void initEverything() async{
+  void initEverything() async {
+    listAreas.addAll(listDummy.map((dummyString) => DropdownMenuItem(
+          value: dummyString,
+          child: Text(dummyString),
+        )));
 
-
-    listAreas.addAll(listDummy.map((dummyString) => DropdownMenuItem(value: dummyString,
-    child: Text(dummyString),)));
-
-    setState(() {
-
-    });
+    setState(() {});
   }
 }
