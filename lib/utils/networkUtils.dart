@@ -87,7 +87,7 @@ Future<int> getTotalVehicles(BuildContext context) async {
     "action": "occupied_slots",
   });
 
-//  d(uri);
+  d(uri);
   http.Response httpResponse = await http.post(uri);
 
   if (httpResponse.statusCode == 200) {
@@ -96,12 +96,14 @@ Future<int> getTotalVehicles(BuildContext context) async {
 //   print("decoded body \t" + decodedBody.toString());
 
     List listRaw = decodedBody["all_slots"];
-    listRaw.forEach((slot) {
-      //   print("Row \t $slot and oo ${slot["Occupied slots"]}");
-      if (slot["occupied_slots"] == "1") {
-        countVehicles++;
-      }
-    });
+    if (listRaw != null) {
+      listRaw.forEach((slot) {
+        //   print("Row \t $slot and oo ${slot["Occupied slots"]}");
+        if (slot["occupied_slots"] == "1") {
+          countVehicles++;
+        }
+      });
+    }
   } else {
     showToast("Network Error - ${httpResponse.reasonPhrase}");
   }
@@ -116,7 +118,7 @@ Future<List<Vehicle>> getVehicles(BuildContext context) async {
     "action": "user_details",
   });
 
-//  d(uri);
+  d(uri);
   http.Response httpResponse = await http.post(uri);
 
   if (httpResponse.statusCode == 200) {
@@ -160,7 +162,7 @@ Future<double> getTotalPayments(BuildContext context) async {
     "action": "payments",
   });
 
-  // d(uri);
+   d(uri);
   http.Response httpResponse = await http.post(uri);
 
   if (httpResponse.statusCode == 200) {

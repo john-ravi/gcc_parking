@@ -220,6 +220,7 @@ class DashboardState extends State<Dashboards> with WidgetsBindingObserver {
   List<charts.Series> seriesList;
   bool animate = false;
   AppLifecycleState _notification;
+  bool timerStarted = false;
 
   int i = 0;
 
@@ -255,8 +256,14 @@ class DashboardState extends State<Dashboards> with WidgetsBindingObserver {
   }
 
   void stopTimer() {
-    print("Stopped Timer");
+    if(timerStarted) {
+
+    print("Stopped Timer $timerStarted");
     timer.cancel();
+    setState(() {
+      timerStarted = false;
+    });
+    }
   }
 
   void initEverything() async {
@@ -267,8 +274,16 @@ class DashboardState extends State<Dashboards> with WidgetsBindingObserver {
   }
 
   void startTimer() {
-    print("Strart Timer");
+    if(!timerStarted){
+
+    print("Strart Timer $timerStarted");
     timer = new Timer.periodic(fourteenHunredMs, realTimeUpdate);
+
+    setState(() {
+      timerStarted = true;
+    });
+
+    }
   }
 
   void realTimeUpdate(Timer t) async {
@@ -348,6 +363,8 @@ class DashboardState extends State<Dashboards> with WidgetsBindingObserver {
                   color: Colors.white, size: DRAWER_ICON_SIZE),
               onPressed: () {
                 stopTimer();
+                print("Praking on pressed");
+
                 Navigator.push(
                     context,
                     MaterialPageRoute(

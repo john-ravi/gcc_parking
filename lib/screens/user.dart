@@ -316,6 +316,7 @@ class UserState extends State<User> {
                     icon: Icon(FontAwesomeIcons.productHunt,
                         color: Colors.white, size: DRAWER_ICON_SIZE),
                     onPressed: () {
+                      print("Praking on pressed");
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) => ParkingLotManagement()));
                     },

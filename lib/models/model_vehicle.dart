@@ -1,4 +1,5 @@
 
+
 class Vehicle {
   String vehiclePlateNumber="";
   String vehicleType="";
@@ -12,12 +13,15 @@ class Vehicle {
   String penalty="";
   String due="";
   bool blacklisted= false;
+  String area = "";
+
 
   Vehicle();
 
   Vehicle.named({
     this.vehiclePlateNumber,
     this.vehicleType,
+    this.area,
     this.userId,
     this.startTime,
     this.endTime,

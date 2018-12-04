@@ -58,9 +58,11 @@ flutter:
     - assets/images/chartbar.png
     - assets/images/close.png
     - assets/images/green.png
-    - assets/images/greenparking.png
     - assets/images/red.png
+    - assets/images/greenparking.png
     - assets/images/redparking.png
+    - assets/images/inactiveparking.png
+    - assets/images/pending.png
     - assets/images/white.png
 
   #  - images/a_dot_ham.jpeg
