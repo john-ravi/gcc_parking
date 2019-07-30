@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gcc_parking/enforcement.dart';
+import 'package:gcc_parking/screens/alerts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 
 OverlayEntry loaderentry;
-
 
 showloader(BuildContext context) {
   OverlayState loaderstate = Overlay.of(context);
@@ -54,5 +56,38 @@ showToast(String msg){
       gravity: ToastGravity.CENTER,
       timeInSecForIos: 1,
       textcolor: '#ffffff'
+  );
+}
+
+
+Container buildContainerAlert(BuildContext context) {
+  return Container(
+    //          color: Colors.orange,
+    child: Stack(children: <Widget>[
+      Center(child: Container(
+        //      color: Colors.red,
+        child: IconButton(
+          onPressed: (){Navigator.push(context, MaterialPageRoute(builder: (_)=>
+              Alert()));},
+          icon: Icon
+            (FontAwesomeIcons.bell, color: Colors.redAccent,),
+        ),
+      )),
+      new Positioned(
+        bottom: 15.0,
+        right: 10.0,
+        child: new Center(
+          child: new Text(
+            '${listAlerts.length}',
+            style: new TextStyle(
+                color: Colors.white,
+                fontSize: 17.5,
+                fontWeight: FontWeight.w900
+            ),
+          ),
+        ),
+
+      ),
+    ]),
   );
 }

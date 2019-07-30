@@ -14,8 +14,10 @@ class VehicleTypeModel {
   String vehicleDimensions;
   String vehicleECSValue;
   int parkingFee;
+  int vid;
 
   VehicleTypeModel.named(
-      {this.vehicleClass, this.vehicleDimensions, this.vehicleECSValue, this.parkingFee});
+      {this.vehicleClass, this.vehicleDimensions, this.vehicleECSValue, this
+          .parkingFee, this.vid});
 
 }

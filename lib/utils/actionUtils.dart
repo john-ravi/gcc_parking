@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:gcc_parking/enforcement.dart';
 import 'package:gcc_parking/utils/appConstants.dart';
 import 'package:gcc_parking/utils/visualUtils.dart';
+import 'package:gcc_parking/widgets/login_enforcement.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void logout(BuildContext context) async {
@@ -16,6 +17,8 @@ void logout(BuildContext context) async {
   print(prefs.getString(CURRENT_USER));
 
   removeloader();
-  Navigator.push(
-      context, new MaterialPageRoute(builder: (context) => new Enforcement()));
+  Navigator.pushAndRemoveUntil(
+      context, new MaterialPageRoute(builder: (context) => new LoginEnforcement()), (Route<dynamic> route) => false);
 }
+
+

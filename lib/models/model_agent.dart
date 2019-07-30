@@ -1,23 +1,21 @@
-class Agent {
+class ModelAgent {
   /*
-  *
-Full texts
-agent_id
-agent_name
-agent_fname
-agent_lname
-agent_email
-agent_pwd
-agent_mobile
-agent_address
-agent_regdate
-agent_img
-agent_status
-  * */
+String agent_email, String agent_pwd, String device_num
+    String agent_pass_code,
+       */
 
 
-  var id, agent_name;
+  int id;
+  String agentName, email;
+  bool boolModelUpdated;
+  String fcmToken;
 
-  Agent.named({this.id, this.agent_name});
+  ModelAgent.named({this.fcmToken, this.id, this.agentName, this.boolModelUpdated = false,});
+
+  @override
+  String toString() {
+    return 'ModelAgent{id: $id, email: $email, fcmToken: $fcmToken}';
+  }
+
 
 }
